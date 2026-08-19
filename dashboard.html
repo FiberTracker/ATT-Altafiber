@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem("auth")!=="1")window.location.href="index.html";</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AT&amp;T / altafiber: Footprint Overlap &amp; Market Adjacency</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff; color:#1a1a1a; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; line-height:1.5; }
+  .container { max-width:1480px; margin:0 auto; padding:16px 24px; }
+  .header { border-bottom:2px solid #1a1a1a; padding-bottom:8px; margin-bottom:16px; }
+  h1 { font-size:1.4rem; font-weight:700; }
+  .subtitle { color:#6b7280; font-size:0.78rem; margin-top:2px; }
+  .badge { display:inline-block; background:#dc2626; color:#fff; font-size:0.58rem; padding:1px 7px; border-radius:2px; font-weight:700; letter-spacing:0.5px; vertical-align:middle; margin-left:8px; }
+  .strip { display:flex; gap:0; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:16px; overflow:hidden; background:#fff; flex-wrap:wrap; }
+  .strip-item { flex:1; min-width:180px; padding:12px 14px; border-right:1px solid #e5e7eb; }
+  .strip-item:last-child { border-right:none; }
+  .strip-label { font-size:0.62rem; color:#6b7280; text-transform:uppercase; letter-spacing:0.6px; font-weight:600; }
+  .strip-val { font-size:1.3rem; font-weight:700; }
+  .strip-sub { font-size:0.68rem; color:#9ca3af; }
+  .callout { display:flex; align-items:center; gap:20px; flex-wrap:wrap; background:#fafafa; border:1px solid #e5e7eb; border-left:4px solid #059669; border-radius:0 6px 6px 0; padding:14px 20px; margin-bottom:16px; }
+  .co-block { text-align:center; }
+  .co-label { font-size:0.62rem; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+  .co-val { font-size:1.5rem; font-weight:700; }
+  .co-sub { font-size:0.68rem; color:#9ca3af; }
+  .co-arrow { color:#d1d5db; font-size:1.3rem; }
+  .national-map { width:100%; height:660px; border-radius:6px; border:1px solid #d1d5db; margin-bottom:8px; }
+  h2 { font-size:1rem; font-weight:700; margin:26px 0 8px; padding-bottom:4px; border-bottom:1px solid #e5e7eb; }
+  .insight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:12px; margin:12px 0 8px; }
+  .insight { background:#fafafa; border:1px solid #e5e7eb; border-radius:8px; padding:14px 18px; }
+  .insight.hot { border-left:4px solid #EA580C; }
+  .insight.green { border-left:4px solid #059669; }
+  .insight.purple { border-left:4px solid #7C3AED; }
+  .insight.blue { border-left:4px solid #0577B1; }
+  .insight h3 { font-size:0.85rem; font-weight:700; margin-bottom:4px; }
+  .insight .stat-row { display:flex; gap:14px; margin:8px 0; flex-wrap:wrap; }
+  .insight .ministat { background:#fff; border:1px solid #e5e7eb; border-radius:6px; padding:6px 10px; }
+  .insight .ministat .l { font-size:0.58rem; color:#6b7280; text-transform:uppercase; letter-spacing:0.4px; }
+  .insight .ministat .v { font-size:1rem; font-weight:700; }
+  .insight p { font-size:0.72rem; color:#374151; line-height:1.6; }
+  .table-wrap { overflow-x:auto; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:20px; }
+  table.main { width:100%; border-collapse:collapse; font-size:0.73rem; }
+  table.main th { background:#f8fafc; color:#374151; font-weight:700; text-align:left; padding:8px 8px; white-space:nowrap; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.4px; border-bottom:2px solid #e5e7eb; }
+  table.main th.num { text-align:right; }
+  table.main td { padding:5px 8px; border-bottom:1px solid #f3f4f6; white-space:nowrap; }
+  table.main tr:hover td { background:#f8fafc; }
+  table.main tr.total-row td { background:#f1f5f9; font-weight:700; border-top:2px solid #374151; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .meth { background:#f8fafc; border:1px solid #e5e7eb; border-radius:6px; padding:16px 20px; margin:20px 0; font-size:0.74rem; color:#374151; line-height:1.6; }
+  .meth h3 { font-size:0.82rem; font-weight:700; margin-bottom:6px; }
+  .meth ul { padding-left:16px; }
+  .meth li { margin-bottom:3px; }
+  .footnotes { border-top:1px solid #e5e7eb; margin-top:20px; padding-top:16px; }
+  .footnotes h3 { font-size:0.82rem; font-weight:700; margin-bottom:10px; }
+  .fn-item { display:flex; gap:8px; margin-bottom:8px; font-size:0.68rem; color:#374151; line-height:1.6; }
+  .fn-num { flex-shrink:0; font-weight:700; color:#6b7280; min-width:18px; }
+  .fn-text { flex:1; }
+  .fn-text a { color:#0577B1; }
+  sup.fn { font-size:0.55rem; color:#6b7280; cursor:help; vertical-align:super; margin-left:1px; }
+  .legend { background:#fff; border:1px solid #d1d5db; border-radius:6px; padding:10px 12px; font-size:0.7rem; color:#374151; box-shadow:0 1px 4px rgba(0,0,0,0.08); line-height:1.7; }
+  .legend-title { font-weight:700; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:3px; }
+  .legend-swatch { display:inline-block; width:14px; height:10px; border-radius:2px; margin-right:6px; vertical-align:middle; border:1px solid rgba(0,0,0,0.1); }
+  .leaflet-popup-content-wrapper { background:#fff; border:1px solid #d1d5db; border-radius:8px; }
+  .leaflet-popup-content { font-size:0.78rem; margin:10px 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>AT&amp;T / altafiber: Footprint Overlap &amp; Market Adjacency <span class="badge">CONFIDENTIAL</span></h1>
+  <div class="subtitle">FCC BDC December 2025 filing (J26) &mdash; AT&amp;T (130077) vs altafiber / Cincinnati Bell Inc. (130254) &mdash; OH / KY / IN wireline (FTTP + copper) &mdash; August 2026 &mdash; Market Intel</div>
+  <div style="font-size:0.66rem;color:#9ca3af;margin-top:4px;line-height:1.4"><strong style="color:#6b7280">BSL</strong> = Broadband Serviceable Location (unique FCC <code style="font-size:0.62rem;background:#f3f4f6;padding:0 3px;border-radius:2px">location_id</code>). <strong style="color:#EA580C">Overlap</strong> = location served by both operators' wireline. <strong style="color:#059669">Incremental</strong> = altafiber location with <em>no AT&amp;T wireline of any kind</em> &mdash; territory AT&amp;T cannot reach today without new construction. AT&amp;T fixed wireless excluded by design (copper marks ILEC territory; FW would mark everywhere).</div>
+</div>
+
+<div class="strip">
+  <div class="strip-item"><div class="strip-label">altafiber FTTP Passings<sup class="fn" title="See footnote 1">1</sup></div><div class="strip-val" style="color:#7C3AED">1.44M</div><div class="strip-sub">975K Midwest + 467K Hawaii (FY25 10-K)</div></div>
+  <div class="strip-item"><div class="strip-label">altafiber Tri-State BDC<sup class="fn" title="See footnote 2">2</sup></div><div class="strip-val" style="color:#7C3AED">711,229</div><div class="strip-sub">98.3% fiber-lit (699K FTTP BSLs)</div></div>
+  <div class="strip-item"><div class="strip-label">AT&amp;T Tri-State Fiber<sup class="fn" title="See footnote 3">3</sup></div><div class="strip-val" style="color:#0577B1">1.71M</div><div class="strip-sub">of 3.26M AT&amp;T wireline BSLs (53% fiber)</div></div>
+  <div class="strip-item"><div class="strip-label">Overlap (Any Wireline)<sup class="fn" title="See footnote 4">4</sup></div><div class="strip-val" style="color:#EA580C">62,410</div><div class="strip-sub">8.8% of altafiber &mdash; all in Ohio</div></div>
+  <div class="strip-item"><div class="strip-label">Incremental to AT&amp;T<sup class="fn" title="See footnote 5">5</sup></div><div class="strip-val" style="color:#059669">648,819</div><div class="strip-sub">91.2% &mdash; zero AT&amp;T wireline today</div></div>
+</div>
+
+<div class="callout">
+  <div class="co-block"><div class="co-label">altafiber Tri-State</div><div class="co-val" style="color:#7C3AED">711K</div><div class="co-sub">BDC BSLs (OH/KY/IN)</div></div>
+  <div class="co-arrow">&rarr;</div>
+  <div class="co-block"><div class="co-label">Overlap</div><div class="co-val" style="color:#EA580C">62K</div><div class="co-sub">8.8% &mdash; Dayton / Columbus edge-out</div></div>
+  <div class="co-arrow">&rarr;</div>
+  <div class="co-block"><div class="co-label">Incremental (Tri-State)</div><div class="co-val" style="color:#059669">649K</div><div class="co-sub">91.2% new footprint</div></div>
+  <div class="co-arrow">+</div>
+  <div class="co-block"><div class="co-label">Hawaiian Telcom<sup class="fn" title="See footnote 6">6</sup></div><div class="co-val" style="color:#059669">271K</div><div class="co-sub">BDC BSLs &mdash; zero AT&amp;T wireline</div></div>
+  <div class="co-arrow">=</div>
+  <div class="co-block"><div class="co-label">Net New to AT&amp;T</div><div class="co-val" style="color:#059669">920K</div><div class="co-sub">93.6% of altafiber's 982K BDC total</div></div>
+</div>
+
+<div style="position:relative;margin-bottom:20px">
+  <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+    <button id="btn-alta" onclick="toggleLayer('alta')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #7C3AED;background:#7C3AED;color:#fff;">altafiber (block group)</button>
+    <button id="btn-att" onclick="toggleLayer('att')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #0577B1;background:transparent;color:#0577B1;">AT&amp;T fiber (county)</button>
+    <button id="btn-overlap" onclick="toggleLayer('overlap')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #EA580C;background:#EA580C;color:#fff;">Overlap (block group)</button>
+    <span id="map-status" style="font-size:0.66rem;color:#9ca3af;align-self:center;margin-left:8px;"></span>
+  </div>
+  <div class="national-map" id="map-main"></div>
+  <div style="font-size:0.64rem;color:#9ca3af;margin-top:4px;">altafiber rendered at Census block-group granularity (1,864 block groups, 24 counties). AT&amp;T rendered at county level, shaded by fiber BSL count. Toggle layers above; click any shape for detail.</div>
+</div>
+
+<h2>Where altafiber Adds Growth for AT&amp;T &mdash; Market-Level Read</h2>
+<div class="insight-grid">
+
+  <div class="insight green">
+    <h3>1. The Cincinnati Enclave &mdash; an incumbent-grade hole in AT&amp;T's Midwest map</h3>
+    <div class="stat-row">
+      <div class="ministat"><div class="l">Core-enclave BSLs</div><div class="v" style="color:#059669">~600K</div></div>
+      <div class="ministat"><div class="l">AT&amp;T wireline there</div><div class="v" style="color:#0577B1">&asymp;0</div></div>
+      <div class="ministat"><div class="l">Fiber-lit</div><div class="v" style="color:#7C3AED">~98%</div></div>
+    </div>
+    <p>Hamilton (253K), Butler (100K), Clermont (68K) and Warren (53K) counties in Ohio plus Northern Kentucky form a contiguous six-county enclave where Cincinnati Bell &mdash; not AT&amp;T &mdash; is the incumbent. AT&amp;T Ohio wraps around it (Columbus, Dayton, Cleveland) but has essentially zero wireline inside. This is the only major metro-scale gap in AT&amp;T's OH/KY/IN region, and it is already ~98% fiber-lit at ~48% ILEC penetration<sup class="fn" title="See footnote 7">7</sup> &mdash; finished infrastructure, not a build project.</p>
+  </div>
+
+  <div class="insight green">
+    <h3>2. Northern Kentucky &mdash; 144K locations, literally zero overlap</h3>
+    <div class="stat-row">
+      <div class="ministat"><div class="l">altafiber KY BSLs</div><div class="v" style="color:#7C3AED">144,181</div></div>
+      <div class="ministat"><div class="l">Overlap w/ AT&amp;T</div><div class="v" style="color:#EA580C">0</div></div>
+      <div class="ministat"><div class="l">AT&amp;T KY fiber (Louisville/Lex)</div><div class="v" style="color:#0577B1">387K</div></div>
+    </div>
+    <p>Boone, Kenton, Campbell, Grant, Pendleton and Gallatin counties: altafiber's Kentucky footprint records <strong>zero</strong> shared locations with AT&amp;T's 592K-BSL Kentucky wireline network. NKY is the fastest-growing corner of Kentucky (Cincinnati airport / logistics corridor); AT&amp;T's BellSouth footprint (Louisville, Lexington) never touches it. Same story in southeast Indiana (Dearborn/Franklin counties, 8.9K BSLs, zero overlap).</p>
+  </div>
+
+  <div class="insight hot">
+    <h3>3. Dayton &mdash; the live collision zone; buy-vs-fight math</h3>
+    <div class="stat-row">
+      <div class="ministat"><div class="l">altafiber BSLs (Mont.+Greene)</div><div class="v" style="color:#7C3AED">67,530</div></div>
+      <div class="ministat"><div class="l">Head-to-head FTTP&times;FTTP</div><div class="v" style="color:#EA580C">31,339</div></div>
+      <div class="ministat"><div class="l">alta fiber vs AT&amp;T copper</div><div class="v" style="color:#EA580C">20,583</div></div>
+    </div>
+    <p>altafiber's ~$200M / 2,300-route-mile Dayton edge-out (70K addresses passed at midway, per Feb 2026 company release<sup class="fn" title="See footnote 8">8</sup>) is being built <em>inside AT&amp;T ILEC territory</em>. BDC already shows 31K locations where both operators have FTTP and another 21K where altafiber fiber sits on AT&amp;T copper. Every quarter this build continues, returns on AT&amp;T's own Dayton fiber deteriorate &mdash; and the target gets more expensive. Acquiring altafiber converts a funded competitor build into owned expansion.</p>
+  </div>
+
+  <div class="insight hot">
+    <h3>4. Columbus &mdash; the next front just opened</h3>
+    <div class="stat-row">
+      <div class="ministat"><div class="l">Built (Franklin+Delaware)</div><div class="v" style="color:#7C3AED">11.4K</div></div>
+      <div class="ministat"><div class="l">Announced (Dublin+Westerville)</div><div class="v" style="color:#EA580C">~32K</div></div>
+      <div class="ministat"><div class="l">AT&amp;T Franklin Co. fiber</div><div class="v" style="color:#0577B1">138K</div></div>
+    </div>
+    <p>altafiber has begun edging into metro Columbus &mdash; AT&amp;T's largest Ohio fiber market (138K fiber BSLs in Franklin County alone): Dublin (~17K homes) and the Westerville public-private partnership (15K homes, announced Jul 2026<sup class="fn" title="See footnote 9">9</sup>). BDC shows 11.4K locations already live, two-thirds of them on AT&amp;T copper or fiber. An acquirer can redirect this edge-out capex away from overbuilding AT&amp;T and toward white space &mdash; the 400K new-market program<sup class="fn" title="See footnote 10">10</sup> becomes a complement instead of a threat.</p>
+  </div>
+
+  <div class="insight blue">
+    <h3>5. Convergence white space &mdash; the bundle AT&amp;T can't sell in Cincinnati today</h3>
+    <div class="stat-row">
+      <div class="ministat"><div class="l">AT&amp;T converged rate<sup class="fn" title="See footnote 11">11</sup></div><div class="v" style="color:#0577B1">42.5%</div></div>
+      <div class="ministat"><div class="l">altafiber internet subs</div><div class="v" style="color:#7C3AED">518K</div></div>
+      <div class="ministat"><div class="l">altafiber pen. (MW blended)</div><div class="v" style="color:#7C3AED">~40%</div></div>
+    </div>
+    <p>AT&amp;T sells wireless throughout the Cincinnati DMA but has no owned wireline to bundle with it &mdash; the fiber+mobility convergence engine (42.5% of AT&amp;T fiber households take AT&amp;T postpaid; 45% ex-Lumen) has no fuel here. altafiber brings 518K strategic internet subscribers and a ~48%-penetrated ILEC core on day one &mdash; immediately monetizable through convergence lift and churn reduction on <em>both</em> products, the same logic AT&amp;T used for the Lumen mass-markets deal.</p>
+  </div>
+
+  <div class="insight purple">
+    <h3>6. Scale, scarcity and the 60M target</h3>
+    <div class="stat-row">
+      <div class="ministat"><div class="l">altafiber total FTTP</div><div class="v" style="color:#7C3AED">1.44M</div></div>
+      <div class="ministat"><div class="l">AT&amp;T 2030 target<sup class="fn" title="See footnote 12">12</sup></div><div class="v" style="color:#0577B1">60M+</div></div>
+      <div class="ministat"><div class="l">Comparable assets left</div><div class="v" style="color:#EA580C">Few</div></div>
+    </div>
+    <p>1.44M finished FTTP passings is a meaningful step toward AT&amp;T's 60M-by-2030 goal &mdash; equivalent to ~4 months of AT&amp;T's entire national build engine, delivered penetrated instead of empty. And the shelf is nearly bare: 2026 has seen GoNetSpeed/Greenlight and i3 go to T-Mobile JVs, Ripple to Verizon-aligned Eaton, GFiber+Astound combine under Stonepeak, and Hotwire to Brookfield<sup class="fn" title="See footnote 13">13</sup>. altafiber is the last incumbent-grade, fiber-complete metro enclave inside AT&amp;T's own region. Hawaiian Telcom (467K passings, 27% pen., statewide fiber ~complete 2026-27) is separable for a buyer that wants only the Midwest &mdash; or a growth option in a state where AT&amp;T has no wireline at all.</p>
+  </div>
+
+</div>
+
+<h2>Overlap by State</h2>
+<div class="table-wrap" id="state-table"></div>
+
+<h2>Top Counties &mdash; altafiber Footprint vs AT&amp;T</h2>
+<div class="table-wrap" id="county-table"></div>
+
+<h2>altafiber Company Snapshot (Public Filings)</h2>
+<div class="table-wrap">
+<table class="main">
+<thead><tr><th>Metric</th><th class="num">FY2025</th><th class="num">FY2024</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Revenue</td><td class="num">$1,107.2M</td><td class="num">$1,096.3M</td><td rowspan="6" style="white-space:normal;font-size:0.66rem;color:#6b7280">Cincinnati Bell Inc. FY2025 10-K (filed Mar 19, 2026)<sup class="fn" title="See footnote 1">1</sup></td></tr>
+<tr><td>&mdash; Strategic (fiber) revenue</td><td class="num">$725.4M</td><td class="num">$673.6M</td></tr>
+<tr><td>FTTP passings (Midwest + Hawaii)</td><td class="num">1,442.4K</td><td class="num">1,299.5K</td></tr>
+<tr><td>Strategic internet subs</td><td class="num">517.8K</td><td class="num">472.0K</td></tr>
+<tr><td>Capex</td><td class="num">$548.4M</td><td class="num">$533.0M</td></tr>
+<tr><td>Total debt</td><td class="num">$1,706.5M</td><td class="num">$1,765.8M</td></tr>
+<tr><td>EBITDA (approx.)</td><td class="num">~$400M</td><td class="num">~$320M</td><td style="white-space:normal;font-size:0.66rem;color:#6b7280">Fitch (May 2026): EBITDA grew &gt;$80M in 2025<sup class="fn" title="See footnote 14">14</sup></td></tr>
+<tr><td>Ownership</td><td class="num" colspan="2">Macquarie (MIP V) majority; Ares + REST minority</td><td style="white-space:normal;font-size:0.66rem;color:#6b7280">Take-private $2.9B (Sep 2021); +$600M equity (Aug 2023)</td></tr>
+<tr><td>Reported strategic review</td><td class="num" colspan="2">$5B+ potential sale explored</td><td style="white-space:normal;font-size:0.66rem;color:#6b7280">Bloomberg, Dec 18, 2024<sup class="fn" title="See footnote 15">15</sup>; no outcome reported since</td></tr>
+<tr><td>Debt maturities</td><td class="num" colspan="2">~$1.65B wall in 2028 (Term B + RCF + CBT notes)</td><td style="white-space:normal;font-size:0.66rem;color:#6b7280">FY25 10-K; no fiber ABS raised to date</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="meth">
+<h3>Methodology &amp; Assumptions</h3>
+<ul>
+  <li><strong>Source:</strong> FCC BDC December 2025 filing (J26, published mid-2026). Six state-level CSVs: AT&amp;T (provider 130077) and Cincinnati Bell Inc. d/b/a altafiber (provider 130254) in OH, KY, IN; plus Hawaii for altafiber (Hawaiian Telcom files under the same provider ID).</li>
+  <li><strong>Technology scope:</strong> FTTP (code 50) + copper/DSL (code 10) for both operators. Copper marks legacy ILEC serving territory. AT&amp;T Internet Air fixed wireless deliberately excluded &mdash; it would falsely mark all geography as AT&amp;T-served.</li>
+  <li><strong>Overlap:</strong> exact match on FCC <code>location_id</code> across both operators, decomposed by technology pair (FTTP&times;FTTP, altafiber-fiber&times;AT&amp;T-copper, etc.).</li>
+  <li><strong>Incremental:</strong> altafiber locations with no AT&amp;T wireline record of any technology &mdash; net new serviceable footprint to AT&amp;T.</li>
+  <li><strong>BDC vs reported passings:</strong> BDC records 711K tri-state + 271K Hawaii BSLs vs 1.44M company-reported FTTP passings (1.47x). Standard gap: multi-dwelling units collapse into single BSLs, and "passings" counts serviceable addresses under looser rules. Both figures shown; BSL-level overlap ratios are unaffected.</li>
+  <li><strong>Residential mix:</strong> altafiber files most locations under both residential and business codes, so a residential share is not derivable from BDC for this filer (not shown).</li>
+  <li><strong>County/block-group geometry:</strong> Census TIGERweb 2020 (Layer 82 counties, Layer 8 block groups), fetched at view time.</li>
+</ul>
+</div>
+
+<div class="footnotes">
+<h3>Sources &amp; Footnotes</h3>
+<div class="fn-item"><div class="fn-num">[1]</div><div class="fn-text"><strong>altafiber FY2025 10-K</strong> (Cincinnati Bell Inc., CIK 716133, filed Mar 19, 2026): revenue $1,107.2M; FTTP passings 975.1K Midwest + 467.3K Hawaii; strategic internet subs 389.8K MW + 128.0K HI; capex $548.4M; total debt $1,706.5M. <a href="https://www.sec.gov/Archives/edgar/data/716133/000119312526115350/ck0000716133-20251231.htm" target="_blank">SEC filing</a></div></div>
+<div class="fn-item"><div class="fn-num">[2]</div><div class="fn-text"><strong>altafiber tri-state BDC.</strong> 711,229 unique BSLs in OH/KY/IN (699,494 FTTP-lit = 98.3%); plus 11,735 copper-only (own-footprint conversion runway). FCC BDC Dec 2025.</div></div>
+<div class="fn-item"><div class="fn-num">[3]</div><div class="fn-text"><strong>AT&amp;T tri-state wireline.</strong> 3,263,004 BSLs (1,713,803 FTTP + 1,549,201 copper-only): OH 1.66M (46.5% fiber), KY 592K (65.5% fiber), IN 1.02M (54.7% fiber). AT&amp;T's Ohio fiber conversion trails its KY/IN footprints.</div></div>
+<div class="fn-item"><div class="fn-num">[4]</div><div class="fn-text"><strong>Overlap.</strong> 62,410 shared location_ids, 100% in Ohio: 32,479 FTTP&times;FTTP + 29,542 altafiber-fiber-on-AT&amp;T-copper + 389 other. Zero overlap in KY and IN.</div></div>
+<div class="fn-item"><div class="fn-num">[5]</div><div class="fn-text"><strong>Incremental.</strong> 648,819 tri-state BSLs (637,473 fiber-lit) with no AT&amp;T wireline record &mdash; concentrated in Hamilton, Butler, Clermont, Warren (OH), Boone/Kenton/Campbell (KY), Dearborn (IN).</div></div>
+<div class="fn-item"><div class="fn-num">[6]</div><div class="fn-text"><strong>Hawaiian Telcom.</strong> 271,192 BDC BSLs (254,094 fiber) under provider 130254 in Hawaii; AT&amp;T has no wireline in Hawaii. HT won ~$34M Hawaii BEAD (Aug 2026); statewide fiber build ~85% complete targeting late 2026 &ndash; early 2027. <a href="https://www.hawaii.edu/news/2026/08/04/broadband-expansion-underserved-communities/" target="_blank">UH News</a></div></div>
+<div class="fn-item"><div class="fn-num">[7]</div><div class="fn-text"><strong>Penetration.</strong> Midwest blended ~40% (strategic subs / FTTP passings, 10-K); Cincinnati ILEC core ~48% per Fitch (May 2026). Hawaii ~27%, growing 21% y/y.</div></div>
+<div class="fn-item"><div class="fn-num">[8]</div><div class="fn-text"><strong>Dayton build.</strong> ~$200M, 2,300 route miles; 70K addresses passed at midway. <a href="https://www.businesswire.com/news/home/20260217079165/en/" target="_blank">altafiber release, Feb 17, 2026</a></div></div>
+<div class="fn-item"><div class="fn-num">[9]</div><div class="fn-text"><strong>Columbus edge-out.</strong> Dublin ~17K homes; Westerville PPP 15K homes (Jul 24, 2026). BDC (Dec 2025) captures 11.4K live locations in Franklin + Delaware counties &mdash; announced builds imply ~3x more coming.</div></div>
+<div class="fn-item"><div class="fn-num">[10]</div><div class="fn-text"><strong>New-market program.</strong> 167.5K addresses outside ILEC footprint at YE25; ~400K new-market target; $50M SW Ohio grant supports 38K addresses; zero Midwest BEAD awards (growth is private-capital edge-out + ARPA/CPF).</div></div>
+<div class="fn-item"><div class="fn-num">[11]</div><div class="fn-text"><strong>AT&amp;T convergence.</strong> 42.5% of AT&amp;T Advanced Home Internet customers take AT&amp;T postpaid wireless (6.0M converged); 45% ex-Lumen. <a href="https://about.att.com/story/2026/2q-earnings.html" target="_blank">AT&amp;T Q2 2026 earnings, Jul 22, 2026</a></div></div>
+<div class="fn-item"><div class="fn-num">[12]</div><div class="fn-text"><strong>AT&amp;T fiber targets.</strong> 38.6M fiber locations at Q2 2026 (incl. Fiber Ventures); 40M+ by YE2026; 60M+ by 2030; ~5M new locations/yr through 2030. Same source as [11].</div></div>
+<div class="fn-item"><div class="fn-num">[13]</div><div class="fn-text"><strong>2026 consolidation.</strong> T-Mobile JVs: GoNetSpeed/Greenlight (~$2.0B for 50%, Apr 2026), i3 Broadband (~$700M for 50%, Apr 2026), MetroNet (2025); Stonepeak/GFiber+Astound (Mar 2026); Brookfield/Hotwire (~$7B, Jun 2025); Bain-Tillman Eaton/Ripple (Jul 2026); Brightspeed reported preparing for sale (WSJ, Jul 13, 2026).</div></div>
+<div class="fn-item"><div class="fn-num">[14]</div><div class="fn-text"><strong>EBITDA.</strong> ~$400M FY25 approximation: company incentive-plan "Consolidated EBITDA" &asymp;$403M (10-K Part III) and Fitch commentary (&gt;$80M growth in 2025). Not a company-reported adjusted EBITDA figure &mdash; labeled accordingly. <a href="https://www.fitchratings.com/research/corporate-finance/fitch-affirms-cincinnati-bell-long-term-idr-at-b-outlook-stable-01-05-2026" target="_blank">Fitch, May 1, 2026</a></div></div>
+<div class="fn-item"><div class="fn-num">[15]</div><div class="fn-text"><strong>Strategic review.</strong> <a href="https://www.bloomberg.com/news/articles/2024-12-18/macquarie-is-considering-a-potential-5-billion-plus-altafiber-sale" target="_blank">Bloomberg, Dec 18, 2024</a>: Macquarie exploring options including a $5B+ sale; no formal process outcome publicly reported through Aug 19, 2026.</div></div>
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="map_data.js"></script>
+<script>
+var ALTA = '#7C3AED', ALTA_FILL = '#8B5CF6';
+var ATT = '#0577B1', ATT_FILL = '#0891D1';
+var OVL = '#EA580C', OVL_FILL = '#F97316';
+var INCR = '#059669';
+
+function fmt(n) { return (n||0).toLocaleString('en-US'); }
+
+// ---------- State table ----------
+(function() {
+  var order = ['OH', 'KY', 'IN'];
+  var rows = '', tot = {a:0, af:0, b:0, bf:0, o:0, off:0, ofc:0, i:0};
+  order.forEach(function(st) {
+    var d = BY_STATE[st] || {};
+    ['a','af','b','bf','o','off','ofc','i'].forEach(function(k){ tot[k] += d[k]||0; });
+    rows += '<tr><td><strong>' + st + '</strong></td>' +
+      '<td class="num" style="color:' + ALTA + '">' + fmt(d.a) + '</td>' +
+      '<td class="num" style="color:' + ALTA + ';font-size:0.66rem">' + fmt(d.af) + '</td>' +
+      '<td class="num" style="color:' + ATT + '">' + fmt(d.b) + '</td>' +
+      '<td class="num" style="color:' + ATT + ';font-size:0.66rem">' + fmt(d.bf) + '</td>' +
+      '<td class="num" style="color:' + OVL + ';font-weight:600">' + (d.o ? fmt(d.o) : '&mdash;') + '</td>' +
+      '<td class="num">' + (d.off ? fmt(d.off) : '&mdash;') + '</td>' +
+      '<td class="num">' + (d.ofc ? fmt(d.ofc) : '&mdash;') + '</td>' +
+      '<td class="num" style="color:' + INCR + '">' + fmt(d.i) + '</td>' +
+      '<td class="num">' + (d.a ? (100*(d.i||0)/d.a).toFixed(1) + '%' : '&mdash;') + '</td></tr>';
+  });
+  rows += '<tr class="total-row"><td>TOTAL</td><td class="num">' + fmt(tot.a) + '</td><td class="num">' + fmt(tot.af) + '</td>' +
+    '<td class="num">' + fmt(tot.b) + '</td><td class="num">' + fmt(tot.bf) + '</td><td class="num">' + fmt(tot.o) + '</td>' +
+    '<td class="num">' + fmt(tot.off) + '</td><td class="num">' + fmt(tot.ofc) + '</td><td class="num">' + fmt(tot.i) + '</td>' +
+    '<td class="num">' + (100*tot.i/tot.a).toFixed(1) + '%</td></tr>';
+  document.getElementById('state-table').innerHTML = '<table class="main"><thead><tr>' +
+    '<th>State</th><th class="num">altafiber BSLs</th><th class="num" style="font-size:0.58rem">FTTP</th>' +
+    '<th class="num">AT&amp;T BSLs</th><th class="num" style="font-size:0.58rem">FTTP</th>' +
+    '<th class="num" style="color:' + OVL + '">Overlap</th><th class="num" style="font-size:0.58rem">FTTP&times;FTTP</th><th class="num" style="font-size:0.58rem">Fiber&times;Copper</th>' +
+    '<th class="num" style="color:' + INCR + '">Incremental</th><th class="num">Incr %</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+})();
+
+// ---------- County table ----------
+(function() {
+  var arr = [];
+  for (var f in COUNTY_DATA) { if (COUNTY_DATA[f].a > 0) arr.push([f, COUNTY_DATA[f]]); }
+  arr.sort(function(x, y) { return y[1].a - x[1].a; });
+  var st2 = {'39':'OH','21':'KY','18':'IN'};
+  var rows = '';
+  arr.slice(0, 20).forEach(function(e) {
+    var f = e[0], d = e[1];
+    rows += '<tr><td><strong>' + d.n + '</strong></td><td>' + (st2[f.substring(0,2)]||'') + '</td>' +
+      '<td class="num" style="color:' + ALTA + '">' + fmt(d.a) + '</td>' +
+      '<td class="num" style="color:' + ALTA + ';font-size:0.66rem">' + fmt(d.af) + '</td>' +
+      '<td class="num" style="color:' + ATT + '">' + fmt(d.bf) + '</td>' +
+      '<td class="num" style="color:' + OVL + ';font-weight:600">' + (d.o ? fmt(d.o) : '&mdash;') + '</td>' +
+      '<td class="num">' + (d.off ? fmt(d.off) : '&mdash;') + '</td>' +
+      '<td class="num">' + (d.ofc ? fmt(d.ofc) : '&mdash;') + '</td>' +
+      '<td class="num" style="color:' + INCR + '">' + fmt(d.i) + '</td></tr>';
+  });
+  document.getElementById('county-table').innerHTML = '<table class="main"><thead><tr>' +
+    '<th>County</th><th>St</th><th class="num">altafiber BSLs</th><th class="num" style="font-size:0.58rem">FTTP</th>' +
+    '<th class="num">AT&amp;T FTTP</th><th class="num" style="color:' + OVL + '">Overlap</th>' +
+    '<th class="num" style="font-size:0.58rem">FTTP&times;FTTP</th><th class="num" style="font-size:0.58rem">Fiber&times;Copper</th>' +
+    '<th class="num" style="color:' + INCR + '">Incremental</th></tr></thead><tbody>' + rows + '</tbody></table>';
+})();
+
+// ---------- Map ----------
+var map = null;
+var layers = { alta: L.layerGroup(), att: L.layerGroup(), overlap: L.layerGroup() };
+var layerActive = { alta: true, att: false, overlap: true };
+var layerLoaded = { alta: false, att: false, overlap: false };
+var countyPolyCache = {};
+var bgPolyCache = {};
+
+function setStatus(m) { document.getElementById('map-status').textContent = m; }
+
+function flipCoords(geometry) {
+  if (!geometry || !geometry.coordinates) return [];
+  if (geometry.type === 'MultiPolygon') {
+    return geometry.coordinates.map(function(p) { return p.map(function(r) { return r.map(function(c) { return [c[1], c[0]]; }); }); });
+  }
+  return geometry.coordinates.map(function(r) { return r.map(function(c) { return [c[1], c[0]]; }); });
+}
+
+function toggleLayer(key) {
+  layerActive[key] = !layerActive[key];
+  var btn = document.getElementById('btn-' + key);
+  var colors = { alta: ALTA, att: ATT, overlap: OVL };
+  if (layerActive[key]) {
+    map.addLayer(layers[key]);
+    btn.style.background = colors[key]; btn.style.color = '#fff';
+    if (!layerLoaded[key]) loadLayer(key);
+  } else {
+    map.removeLayer(layers[key]);
+    btn.style.background = 'transparent'; btn.style.color = colors[key];
+  }
+}
+
+function fetchCountyPolys(stateFips, cb) {
+  if (countyPolyCache[stateFips]) { cb(countyPolyCache[stateFips]); return; }
+  var url = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2020/MapServer/82/query' +
+    '?where=STATE%3D%27' + stateFips + '%27&outFields=GEOID,NAME,HU100&f=geojson&outSR=4326&returnGeometry=true';
+  fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+    var res = {};
+    (data.features || []).forEach(function(f) { if (f.properties.GEOID) res[f.properties.GEOID] = f; });
+    countyPolyCache[stateFips] = res; cb(res);
+  }).catch(function() { cb({}); });
+}
+
+function fetchBGPolys(countyFips, cb) {
+  if (bgPolyCache[countyFips]) { cb(bgPolyCache[countyFips]); return; }
+  var st = countyFips.substring(0, 2), co = countyFips.substring(2, 5);
+  var url = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Census2020/MapServer/8/query' +
+    '?where=STATE%3D%27' + st + '%27+AND+COUNTY%3D%27' + co + '%27' +
+    '&outFields=GEOID,HU100&f=geojson&outSR=4326&returnGeometry=true';
+  fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+    bgPolyCache[countyFips] = data.features || []; cb(bgPolyCache[countyFips]);
+  }).catch(function() { cb([]); });
+}
+
+function loadLayer(key) {
+  if (key === 'att') {
+    var maxB = 0;
+    for (var f in COUNTY_DATA) { if (COUNTY_DATA[f].bf > maxB) maxB = COUNTY_DATA[f].bf; }
+    var states = ['39', '21', '18'], done = 0;
+    setStatus('Loading AT&T counties...');
+    states.forEach(function(st) {
+      fetchCountyPolys(st, function(polys) {
+        for (var fips in polys) {
+          var cd = COUNTY_DATA[fips];
+          if (!cd || !cd.bf) continue;
+          var coords = flipCoords(polys[fips].geometry);
+          if (!coords.length) continue;
+          var opacity = Math.min(0.08 + (cd.bf / Math.max(maxB * 0.25, 1)) * 0.4, 0.5);
+          var poly = L.polygon(coords, { color: ATT, fillColor: ATT_FILL, fillOpacity: opacity, weight: 0.8, opacity: 0.45 });
+          var fibPct = cd.b > 0 ? (100 * cd.bf / cd.b).toFixed(0) : 0;
+          poly.bindPopup('<div style="font-family:system-ui;min-width:250px;">' +
+            '<div style="font-weight:700;font-size:14px;color:' + ATT + '">' + polys[fips].properties.NAME + ' County &mdash; AT&amp;T</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;">' +
+            '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">Wireline BSLs</div><div style="font-weight:700;font-size:15px">' + fmt(cd.b) + '</div></div>' +
+            '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">FTTP BSLs</div><div style="font-weight:700;font-size:15px;color:' + ATT + '">' + fmt(cd.bf) + '</div></div>' +
+            '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">Fiber share</div><div style="font-weight:700;font-size:15px">' + fibPct + '%</div></div>' +
+            '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">altafiber BSLs</div><div style="font-weight:700;font-size:15px;color:' + ALTA + '">' + fmt(cd.a) + '</div></div>' +
+            '</div><div style="font-size:9px;color:#94A3B8">Source: FCC BDC Dec 2025 (J26)</div></div>', { maxWidth: 360 });
+          poly.addTo(layers.att);
+        }
+        done++;
+        if (done >= states.length) { layerLoaded.att = true; setStatus(''); }
+      });
+    });
+    return;
+  }
+
+  // alta + overlap: block-group rendering across altafiber counties
+  var counties = Object.keys(BG_BY_COUNTY);
+  var total = counties.length, done2 = 0, polys = 0;
+  var maxA = 0, maxO = 0;
+  for (var bg in BG_ALTA) {
+    if (BG_ALTA[bg].a > maxA) maxA = BG_ALTA[bg].a;
+    if (BG_ALTA[bg].o > maxO) maxO = BG_ALTA[bg].o;
+  }
+  setStatus('Loading ' + key + '... 0/' + total + ' counties');
+  counties.forEach(function(cf) {
+    fetchBGPolys(cf, function(features) {
+      features.forEach(function(f) {
+        var bg12 = (f.properties.GEOID || '').substring(0, 12);
+        var d = BG_ALTA[bg12];
+        if (!d || !f.geometry) return;
+        if (key === 'overlap' && !d.o) return;
+        var coords = flipCoords(f.geometry);
+        if (!coords.length) return;
+        var poly;
+        if (key === 'alta') {
+          var op = Math.min(0.18 + (d.a / Math.max(maxA * 0.35, 1)) * 0.45, 0.65);
+          poly = L.polygon(coords, { color: ALTA, fillColor: ALTA_FILL, fillOpacity: op, weight: 0.4, opacity: 0.4 });
+        } else {
+          var op2 = Math.min(0.3 + (d.o / Math.max(maxO * 0.35, 1)) * 0.45, 0.75);
+          poly = L.polygon(coords, { color: OVL, fillColor: OVL_FILL, fillOpacity: op2, weight: 0.5, opacity: 0.55 });
+        }
+        var hu = parseInt(f.properties.HU100) || 0;
+        poly.bindPopup('<div style="font-family:system-ui;min-width:260px;">' +
+          '<div style="font-size:10px;color:#64748B">Block Group ' + bg12 + '</div>' +
+          '<div style="font-weight:700;font-size:13px;color:' + (key === 'alta' ? ALTA : OVL) + ';margin:2px 0 8px">' + (key === 'alta' ? 'altafiber footprint' : 'Overlap area') + '</div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">' +
+          '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">altafiber BSLs</div><div style="font-weight:700;font-size:15px;color:' + ALTA + '">' + fmt(d.a) + '</div></div>' +
+          '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">altafiber FTTP</div><div style="font-weight:700;font-size:15px;color:' + ALTA + '">' + fmt(d.af) + '</div></div>' +
+          '<div style="background:#F1F5F9;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">Overlap w/ AT&amp;T</div><div style="font-weight:700;font-size:15px;color:' + OVL + '">' + fmt(d.o) + '</div></div>' +
+          '<div style="background:#F0FDF4;padding:6px 8px;border-radius:6px;"><div style="font-size:9px;color:#64748B">Incremental</div><div style="font-weight:700;font-size:15px;color:' + INCR + '">' + fmt(d.i) + '</div></div>' +
+          '</div>' +
+          (key === 'overlap' ? '<div style="font-size:10px;color:#374151;margin-bottom:6px">FTTP&times;FTTP: <strong>' + fmt(d.off) + '</strong> &nbsp;|&nbsp; alta fiber &times; AT&amp;T copper: <strong>' + fmt(d.ofc) + '</strong></div>' : '') +
+          '<div style="font-size:9px;color:#94A3B8">HU: ' + fmt(hu) + ' | FCC BDC Dec 2025 | Census 2020</div></div>', { maxWidth: 360 });
+        poly.addTo(layers[key]);
+        polys++;
+      });
+      done2++;
+      if (done2 < total) { setStatus('Loading ' + key + '... ' + done2 + '/' + total + ' counties'); }
+      else { layerLoaded[key] = true; setStatus(polys + ' block groups loaded'); setTimeout(function() { setStatus(''); }, 2500); }
+    });
+  });
+}
+
+function initMap() {
+  map = L.map('map-main', { zoomControl: true, scrollWheelZoom: true }).setView([39.55, -84.10], 9);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>', maxZoom: 18,
+  }).addTo(map);
+
+  layers.alta.addTo(map);
+  layers.overlap.addTo(map);
+  loadLayer('alta');
+  loadLayer('overlap');
+
+  var legend = L.control({ position: 'bottomright' });
+  legend.onAdd = function() {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = '<div class="legend-title">Layers</div>' +
+      '<span class="legend-swatch" style="background:' + ALTA_FILL + ';opacity:0.5"></span>altafiber (block group)<br>' +
+      '<span class="legend-swatch" style="background:' + ATT_FILL + ';opacity:0.4"></span>AT&amp;T fiber (county)<br>' +
+      '<span class="legend-swatch" style="background:' + OVL_FILL + ';opacity:0.6"></span>Overlap (block group)<br>' +
+      '<div style="font-size:0.6rem;color:#9ca3af;margin-top:4px;">Darker = more BSLs &middot; zoom out for full tri-state</div>';
+    return div;
+  };
+  legend.addTo(map);
+
+  // City reference markers
+  [['Cincinnati', 39.10, -84.51], ['Dayton', 39.76, -84.19], ['Columbus', 39.96, -83.00], ['Covington / NKY', 39.05, -84.55]].forEach(function(c) {
+    L.marker([c[1], c[2]], { opacity: 0.65 }).addTo(map).bindTooltip(c[0], { permanent: false });
+  });
+}
+
+setTimeout(initMap, 100);
+</script>
+</body>
+</html>
