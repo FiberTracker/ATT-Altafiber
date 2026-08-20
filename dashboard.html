@@ -98,12 +98,12 @@
 <div style="position:relative;margin-bottom:20px">
   <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
     <button id="btn-alta" onclick="toggleLayer('alta')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #7C3AED;background:#7C3AED;color:#fff;">altafiber (block group)</button>
-    <button id="btn-att" onclick="toggleLayer('att')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #0577B1;background:transparent;color:#0577B1;">AT&amp;T fiber (county)</button>
+    <button id="btn-att" onclick="toggleLayer('att')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #0577B1;background:transparent;color:#0577B1;">AT&amp;T wireline (county)</button>
     <button id="btn-overlap" onclick="toggleLayer('overlap')" style="padding:6px 14px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:2px solid #EA580C;background:#EA580C;color:#fff;">Overlap (block group)</button>
     <span id="map-status" style="font-size:0.66rem;color:#9ca3af;align-self:center;margin-left:8px;"></span>
   </div>
   <div class="national-map" id="map-main"></div>
-  <div style="font-size:0.64rem;color:#9ca3af;margin-top:4px;">altafiber rendered at Census block-group granularity (1,864 block groups, 24 counties). AT&amp;T rendered at county level, shaded by fiber BSL count. Toggle layers above; click any shape for detail.</div>
+  <div style="font-size:0.64rem;color:#9ca3af;margin-top:4px;">altafiber rendered at Census block-group granularity (1,864 block groups, 24 counties). AT&amp;T rendered at county level: solid blue = AT&amp;T fiber present (shaded by fiber BSL count); dashed slate = AT&amp;T copper-only or near-zero fiber (83 fiber-county + 87 copper-county renderings; 30 counties with &lt;50 AT&amp;T records suppressed as boundary noise; 200 counties total carry some AT&amp;T wireline record). Unshaded counties have no AT&amp;T wireline &mdash; the incumbent there is Brightspeed (ex-CenturyLink, e.g. Lima), Verizon-Frontier (e.g. Richmond IN), Horizon (Chillicothe), Windstream, or an independent. Toggle layers above; click any shape for detail.</div>
 </div>
 
 <h2>Where altafiber Adds Growth for AT&amp;T &mdash; Market-Level Read</h2>
@@ -113,10 +113,10 @@
     <h3>1. The Cincinnati Enclave &mdash; an incumbent-grade hole in AT&amp;T's Midwest map</h3>
     <div class="stat-row">
       <div class="ministat"><div class="l">Core-enclave BSLs</div><div class="v" style="color:#059669">~600K</div></div>
-      <div class="ministat"><div class="l">AT&amp;T wireline there</div><div class="v" style="color:#0577B1">&asymp;0</div></div>
+      <div class="ministat"><div class="l">AT&amp;T in Hamilton Co.</div><div class="v" style="color:#0577B1">0</div></div>
       <div class="ministat"><div class="l">Fiber-lit</div><div class="v" style="color:#7C3AED">~98%</div></div>
     </div>
-    <p>Hamilton (253K), Butler (100K), Clermont (68K) and Warren (53K) counties in Ohio plus Northern Kentucky form a contiguous six-county enclave where Cincinnati Bell &mdash; not AT&amp;T &mdash; is the incumbent. AT&amp;T Ohio wraps around it (Columbus, Dayton, Cleveland) but has essentially zero wireline inside. This is the only major metro-scale gap in AT&amp;T's OH/KY/IN region, and it is already ~98% fiber-lit at ~48% ILEC penetration<sup class="fn" title="See footnote 7">7</sup> &mdash; finished infrastructure, not a build project.</p>
+    <p>Hamilton (253K), Butler (100K), Clermont (68K) and Warren (53K) counties in Ohio plus Northern Kentucky form a contiguous six-county enclave where Cincinnati Bell &mdash; not AT&amp;T &mdash; is the incumbent. AT&amp;T wireline inside it: literally zero in Hamilton, Clermont and the core NKY counties; the only real AT&amp;T pocket is the Middletown corner of Butler County (~11.0K copper BSLs, just 20 fiber) plus ~680 copper lines in Warren. This is the only major metro-scale gap in AT&amp;T's OH/KY/IN region, already ~98% fiber-lit at ~48% ILEC penetration<sup class="fn" title="See footnote 7">7</sup> &mdash; finished infrastructure, not a build project. Note the surrounding rural ring (Ross/Chillicothe, Allen/Lima, Wayne-IN/Richmond, Preble, Darke) is largely <em>not</em> AT&amp;T either &mdash; it belongs to Brightspeed, Verizon-Frontier, Horizon and independents &mdash; so the enclave borders AT&amp;T's metros, not a continuous AT&amp;T wall.</p>
   </div>
 
   <div class="insight green">
@@ -146,7 +146,7 @@
       <div class="ministat"><div class="l">Announced (Dublin+Westerville)</div><div class="v" style="color:#EA580C">~32K</div></div>
       <div class="ministat"><div class="l">AT&amp;T Franklin Co. fiber</div><div class="v" style="color:#0577B1">138K</div></div>
     </div>
-    <p>altafiber has begun edging into metro Columbus &mdash; AT&amp;T's largest Ohio fiber market (138K fiber BSLs in Franklin County alone): Dublin (~17K homes) and the Westerville public-private partnership (15K homes, announced Jul 2026<sup class="fn" title="See footnote 9">9</sup>). BDC shows 11.4K locations already live, two-thirds of them on AT&amp;T copper or fiber. An acquirer can redirect this edge-out capex away from overbuilding AT&amp;T and toward white space &mdash; the 400K new-market program<sup class="fn" title="See footnote 10">10</sup> becomes a complement instead of a threat.</p>
+    <p>altafiber has begun edging into metro Columbus &mdash; AT&amp;T's largest Ohio fiber market (138K fiber BSLs in Franklin County alone): Dublin (~17K homes) and the Westerville public-private partnership (15K homes, announced Jul 2026<sup class="fn" title="See footnote 9">9</sup>). BDC shows 11.4K locations already live, two-thirds of them on AT&amp;T copper or fiber. Note the balance of the announced expansion program points <em>away</em> from AT&amp;T: Richmond IN (Verizon-Frontier territory), Eaton, Greenville, Wilmington OH sit in non-AT&amp;T incumbent towns &mdash; only Washington Court House (~850 AT&amp;T copper lines) and Carrollton KY (~2.0K AT&amp;T copper) touch AT&amp;T territory, and only Dayton/Columbus attack AT&amp;T fiber. For an acquirer that means the growth pipeline is mostly non-cannibalistic white space, and the two live collision fronts simply stop being a problem &mdash; the 400K new-market program<sup class="fn" title="See footnote 10">10</sup> becomes a complement instead of a threat.</p>
   </div>
 
   <div class="insight blue">
@@ -213,7 +213,7 @@
 <h3>Sources &amp; Footnotes</h3>
 <div class="fn-item"><div class="fn-num">[1]</div><div class="fn-text"><strong>altafiber FY2025 10-K</strong> (Cincinnati Bell Inc., CIK 716133, filed Mar 19, 2026): revenue $1,107.2M; FTTP passings 975.1K Midwest + 467.3K Hawaii; strategic internet subs 389.8K MW + 128.0K HI; capex $548.4M; total debt $1,706.5M. <a href="https://www.sec.gov/Archives/edgar/data/716133/000119312526115350/ck0000716133-20251231.htm" target="_blank">SEC filing</a></div></div>
 <div class="fn-item"><div class="fn-num">[2]</div><div class="fn-text"><strong>altafiber tri-state BDC.</strong> 711,229 unique BSLs in OH/KY/IN (699,494 FTTP-lit = 98.3%); plus 11,735 copper-only (own-footprint conversion runway). FCC BDC Dec 2025.</div></div>
-<div class="fn-item"><div class="fn-num">[3]</div><div class="fn-text"><strong>AT&amp;T tri-state wireline.</strong> 3,263,004 BSLs (1,713,803 FTTP + 1,549,201 copper-only): OH 1.66M (46.5% fiber), KY 592K (65.5% fiber), IN 1.02M (54.7% fiber). AT&amp;T's Ohio fiber conversion trails its KY/IN footprints.</div></div>
+<div class="fn-item"><div class="fn-num">[3]</div><div class="fn-text"><strong>AT&amp;T tri-state wireline.</strong> 3,263,004 BSLs (1,713,803 FTTP + 1,549,201 copper-only): OH 1.66M (46.5% fiber), KY 592K (65.5% fiber), IN 1.02M (54.7% fiber). AT&amp;T's Ohio fiber conversion trails its KY/IN footprints. County presence: 200 of 300 tri-state counties carry some AT&amp;T wireline record; 83 render as fiber counties (&ge;50 fiber BSLs), 87 as copper-only/near-zero-fiber (dashed on map), 30 suppressed as boundary noise (&lt;50 records &mdash; e.g. Ross/Chillicothe has just 2 AT&amp;T records; the incumbent there is Horizon/Chillicothe Telephone). Counties with no AT&amp;T record at all (e.g. Allen/Lima = Brightspeed ex-CenturyLink; Wayne-IN/Richmond = Verizon-Frontier) are unshaded.</div></div>
 <div class="fn-item"><div class="fn-num">[4]</div><div class="fn-text"><strong>Overlap.</strong> 62,410 shared location_ids, 100% in Ohio: 32,479 FTTP&times;FTTP + 29,542 altafiber-fiber-on-AT&amp;T-copper + 389 other. Zero overlap in KY and IN.</div></div>
 <div class="fn-item"><div class="fn-num">[5]</div><div class="fn-text"><strong>Incremental.</strong> 648,819 tri-state BSLs (637,473 fiber-lit) with no AT&amp;T wireline record &mdash; concentrated in Hamilton, Butler, Clermont, Warren (OH), Boone/Kenton/Campbell (KY), Dearborn (IN).</div></div>
 <div class="fn-item"><div class="fn-num">[6]</div><div class="fn-text"><strong>Hawaiian Telcom.</strong> 271,192 BDC BSLs (254,094 fiber) under provider 130254 in Hawaii; AT&amp;T has no wireline in Hawaii. HT won ~$34M Hawaii BEAD (Aug 2026); statewide fiber build ~85% complete targeting late 2026 &ndash; early 2027. <a href="https://www.hawaii.edu/news/2026/08/04/broadband-expansion-underserved-communities/" target="_blank">UH News</a></div></div>
@@ -359,11 +359,19 @@ function loadLayer(key) {
       fetchCountyPolys(st, function(polys) {
         for (var fips in polys) {
           var cd = COUNTY_DATA[fips];
-          if (!cd || !cd.bf) continue;
+          if (!cd || !cd.b) continue;
+          // suppress boundary noise: a handful of stray records is not real AT&T presence
+          if (cd.b < 50) continue;
           var coords = flipCoords(polys[fips].geometry);
           if (!coords.length) continue;
-          var opacity = Math.min(0.08 + (cd.bf / Math.max(maxB * 0.25, 1)) * 0.4, 0.5);
-          var poly = L.polygon(coords, { color: ATT, fillColor: ATT_FILL, fillOpacity: opacity, weight: 0.8, opacity: 0.45 });
+          var poly;
+          if (cd.bf >= 50) {
+            var opacity = Math.min(0.08 + (cd.bf / Math.max(maxB * 0.25, 1)) * 0.4, 0.5);
+            poly = L.polygon(coords, { color: ATT, fillColor: ATT_FILL, fillOpacity: opacity, weight: 0.8, opacity: 0.45 });
+          } else {
+            // copper-only county: light slate, dashed border
+            poly = L.polygon(coords, { color: '#64748B', fillColor: '#94A3B8', fillOpacity: 0.13, weight: 1, opacity: 0.5, dashArray: '5,4' });
+          }
           var fibPct = cd.b > 0 ? (100 * cd.bf / cd.b).toFixed(0) : 0;
           poly.bindPopup('<div style="font-family:system-ui;min-width:250px;">' +
             '<div style="font-weight:700;font-size:14px;color:' + ATT + '">' + polys[fips].properties.NAME + ' County &mdash; AT&amp;T</div>' +
@@ -447,8 +455,9 @@ function initMap() {
     div.innerHTML = '<div class="legend-title">Layers</div>' +
       '<span class="legend-swatch" style="background:' + ALTA_FILL + ';opacity:0.5"></span>altafiber (block group)<br>' +
       '<span class="legend-swatch" style="background:' + ATT_FILL + ';opacity:0.4"></span>AT&amp;T fiber (county)<br>' +
+      '<span class="legend-swatch" style="background:#94A3B8;opacity:0.3;border:1px dashed #64748B"></span>AT&amp;T copper-only (county)<br>' +
       '<span class="legend-swatch" style="background:' + OVL_FILL + ';opacity:0.6"></span>Overlap (block group)<br>' +
-      '<div style="font-size:0.6rem;color:#9ca3af;margin-top:4px;">Darker = more BSLs &middot; zoom out for full tri-state</div>';
+      '<div style="font-size:0.6rem;color:#9ca3af;margin-top:4px;">Darker = more BSLs &middot; unshaded = no AT&amp;T wireline<br>(other ILEC: Brightspeed, Verizon-Frontier,<br>Horizon, independents) &middot; zoom out for tri-state</div>';
     return div;
   };
   legend.addTo(map);
